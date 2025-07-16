@@ -76,8 +76,6 @@ Jika CPI ≥ 80, maka karyawan dianggap Layak Mendapatkan Reward.
 ├── logout.php
 └── index.php
 
-🚀 Cara Menjalankan
-Clone/copy project ke folder htdocs atau www.
 
 Buat database MySQL → import spk_cpi.sql.
 
