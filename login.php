@@ -28,21 +28,75 @@ if (isset($_POST['login'])) {
   <title>Login - SPK CPI</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #f8f9fa; }
+    body { 
+      background-color: #e3f2fd; 
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
     .login-box {
       max-width: 400px;
       margin: 80px auto;
-      padding: 25px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 32px 28px 24px 28px;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px rgba(0,105,92,0.10), 0 1.5px 6px rgba(0,105,92,0.08);
+      border-top: 6px solid #00695c;
+    }
+    .login-logo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .login-logo img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      margin-right: 10px;
+    }
+    .login-title {
+      color: #00695c;
+      font-weight: bold;
+      font-size: 1.35rem;
+      text-align: center;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    .login-subtitle {
+      color: #333;
+      font-size: 1rem;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .form-label {
+      color: #00695c;
+      font-weight: 500;
+    }
+    .btn-primary {
+      background-color: #00695c;
+      border-color: #00695c;
+      border-radius: 8px;
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+    .btn-primary:hover {
+      background-color: #004d40;
+      border-color: #004d40;
+    }
+    .alert-danger {
+      border-radius: 8px;
+      font-size: 0.98rem;
     }
   </style>
 </head>
 <body>
 
 <div class="login-box">
-  <h4 class="text-center mb-4">Login SPK CPI</h4>
+  <div class="login-logo">
+    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png" alt="Logo Sekolah">
+    <span class="login-title">Sistem Penilaian Guru</span>
+  </div>
+  <div class="login-subtitle">Login ke Aplikasi SPK CPI</div>
 
   <?php if (isset($error)): ?>
     <div class="alert alert-danger"><?= $error ?></div>
@@ -50,12 +104,12 @@ if (isset($_POST['login'])) {
 
   <form method="post">
     <div class="mb-3">
-      <label>Username</label>
-      <input type="text" name="username" class="form-control" required>
+      <label class="form-label">Username</label>
+      <input type="text" name="username" class="form-control" required autofocus autocomplete="username">
     </div>
     <div class="mb-3">
-      <label>Password</label>
-      <input type="password" name="password" class="form-control" required>
+      <label class="form-label">Password</label>
+      <input type="password" name="password" class="form-control" required autocomplete="current-password">
     </div>
     <button class="btn btn-primary w-100" name="login">Login</button>
   </form>

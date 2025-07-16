@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db = "spk_cpi";
+$db = "spk_cpi_guru";
 
 $conn = mysqli_connect($host, $user, $pass, $db);
 if (!$conn) {

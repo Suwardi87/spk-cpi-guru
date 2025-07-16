@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['username']) || ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'hrd')) {
+if (!isset($_SESSION['username']) || ($_SESSION['role'] !== 'kepala_sekolah' && $_SESSION['role'] !== 'guru')) {
     header("Location: ../login.php");
     exit;
 }
@@ -8,16 +8,16 @@ if (!isset($_SESSION['username']) || ($_SESSION['role'] !== 'admin' && $_SESSION
 include '../config/db.php';
 
 // Ambil data
-$karyawan = mysqli_query($conn, "SELECT * FROM karyawan");
+$guru = mysqli_query($conn, "SELECT * FROM guru");
 $kriteria = mysqli_query($conn, "SELECT * FROM kriteria");
 
 // Proses simpan
 if (isset($_POST['simpan'])) {
-    $id_karyawan = $_POST['id_karyawan'];
+    $id_guru = $_POST['id_guru'];
 
     foreach ($_POST['nilai'] as $id_kriteria => $nilai) {
-        mysqli_query($conn, "REPLACE INTO penilaian (id_karyawan, id_kriteria, nilai) 
-        VALUES ('$id_karyawan', '$id_kriteria', '$nilai')");
+        mysqli_query($conn, "REPLACE INTO penilaian (id_guru, id_kriteria, nilai) 
+        VALUES ('$id_guru', '$id_kriteria', '$nilai')");
     }
 
     echo "<script>alert('Nilai berhasil disimpan'); location.href='nilai.php';</script>";
@@ -28,7 +28,7 @@ if (isset($_POST['simpan'])) {
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Input Nilai Karyawan</title>
+  <title>Input Nilai Guru</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -39,20 +39,20 @@ if (isset($_POST['simpan'])) {
 </nav>
 
 <div class="container mt-4">
-  <h3>Input Nilai Kinerja Karyawan</h3>
+  <h3>Input Nilai Guru</h3>
 
   <div class="card mt-3">
     <div class="card-body">
       <form method="post">
 
-        <!-- Pilih Karyawan -->
+        <!-- Pilih Guru -->
         <div class="mb-3">
-          <label class="form-label">Pilih Karyawan</label>
-          <select name="id_karyawan" class="form-select" required>
+          <label class="form-label">Pilih Guru</label>
+          <select name="id_guru" class="form-select" required>
             <option value="">-- Pilih --</option>
-            <?php while ($k = mysqli_fetch_assoc($karyawan)): ?>
-              <option value="<?= $k['id'] ?>">
-                <?= $k['nama'] ?> - <?= $k['jabatan'] ?>
+            <?php while ($g = mysqli_fetch_assoc($guru)): ?>
+              <option value="<?= $g['id'] ?>">
+                <?= $g['nama'] ?> - <?= $g['jabatan'] ?>
               </option>
             <?php endwhile; ?>
           </select>
@@ -82,3 +82,4 @@ if (isset($_POST['simpan'])) {
 
 </body>
 </html>
+

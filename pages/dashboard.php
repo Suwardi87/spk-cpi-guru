@@ -1,145 +1,184 @@
 <?php
 session_start();
 if (!isset($_SESSION['username'])) {
-    header("Location: ../login.php"); // relatif karena file ini ada di /pages
+    header("Location: ../login.php");
     exit;
 }
 
 include '../config/db.php';
 
-// hitung jumlah data
-$karyawan = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM karyawan"));
+$guru = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM guru"));
 $kriteria = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM kriteria"));
 $penilaian = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM penilaian"));
-
+function getTopCPI($conn, $limit = 5) {
+    $sql = "SELECT g.nama, SUM(k.bobot * p.nilai) AS cpi 
+            FROM penilaian p 
+            JOIN guru g ON p.id_guru = g.id 
+            JOIN kriteria k ON p.id_kriteria = k.id 
+            GROUP BY g.id 
+            ORDER BY cpi DESC 
+            LIMIT $limit";
+    return mysqli_fetch_all(mysqli_query($conn, $sql), MYSQLI_ASSOC);
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard - SPK CPI</title>
+  <title>Dashboard - Sistem Penilaian Guru</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
+    body {
+      background-color: #f8f9fa;
+    }
     .card {
       margin-bottom: 20px;
+      border-radius: 15px;
+      height: 320px;
     }
     .card-header {
-      background-color: #343a40;
+      background-color: #00695c;
       color: white;
+      font-weight: bold;
     }
-    .card-body {
-      padding: 20px;
+    .header-banner {
+      background-image: url('https://cdn.pixabay.com/photo/2016/03/27/22/22/school-1280559_960_720.jpg');
+      background-size: cover;
+      background-position: center;
+      height: 200px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      position: relative;
     }
-    .card-footer {
-      background-color: #343a40;
+    .header-banner h1 {
+      position: absolute;
+      bottom: 20px;
+      left: 30px;
       color: white;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px 20px;
+      border-radius: 10px;
+    }
+    .denah-img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      border: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+<nav class="navbar navbar-expand-lg px-3" style="background-color:#00695c;color:white;">
   <div class="container-fluid">
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="dashboard.php">Dashboard</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="karyawan.php" <?= $_SESSION['role'] !== 'admin' ? 'style="pointer-events: none;opacity: 0.5;"' : '' ?>>Kelola Karyawan</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="kriteria.php" <?= $_SESSION['role'] !== 'admin' ? 'style="pointer-events: none;opacity: 0.5;"' : '' ?>>Kelola Kriteria</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="nilai.php" <?= $_SESSION['role'] !== 'supervisor' ? 'style="pointer-events: none;opacity: 0.5;"' : '' ?>>Input Nilai</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="hasil.php">Lihat Hasil CPI</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="cetak_laporan.php">Cetak PDF</a>
-        </li>
-      </ul>
-      <span class="navbar-text ms-auto">
-        Login sebagai: <?= $_SESSION['username'] ?> (<?= $_SESSION['role'] ?>)
-      </span>
-      <a href="../logout.php" class="btn btn-danger ms-3">Logout</a>
-    </div>
+    <a class="navbar-brand text-white" href="dashboard.php">Sistem Penilaian Guru</a>
+    <ul class="navbar-nav me-auto">
+      <li class="nav-item"><a class="nav-link text-white" href="dashboard.php">Dashboard</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="guru.php" <?= $_SESSION['role'] !== 'admin' ? 'style="pointer-events: none; opacity: 0.5;"' : '' ?>>Kelola Guru</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="kriteria.php" <?= $_SESSION['role'] !== 'admin' ? 'style="pointer-events: none; opacity: 0.5;"' : '' ?>>Kelola Kriteria</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="nilai.php" <?= $_SESSION['role'] !== 'guru' ? 'style="pointer-events: none; opacity: 0.5;"' : '' ?>>Input Nilai</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="hasil.php">Hasil CPI</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="cetak_laporan.php">Cetak PDF</a></li>
+    </ul>
+    <span class="navbar-text text-white">
+      Login sebagai: <?= htmlspecialchars($_SESSION['username']) ?> (<?= $_SESSION['role'] ?>)
+    </span>
+    <a href="../logout.php" class="btn btn-danger ms-3">Logout</a>
   </div>
 </nav>
 
 <div class="container mt-4">
-  <div class="row">
 
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          Kelola Karyawan
-        </div>
+  <!-- Banner Gambar -->
+  <div class="header-banner">
+    <h1>Selamat Datang di Sistem Penilaian Guru</h1>
+  </div>
+
+  <!-- Konten Dashboard -->
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+
+    <?php if ($_SESSION['role'] === 'admin'): ?>
+    <div class="col">
+      <div class="card h-100">
+        <div class="card-header">Data Guru</div>
         <div class="card-body">
-          <p class="card-text">Kelola data karyawan</p>
-          <p class="card-text">Jumlah Karyawan: <?= $karyawan ?></p>
-          <a href="karyawan.php" class="btn btn-primary">Kelola</a>
+          <p>Kelola data guru dan pegawai sekolah.</p>
+          <p>Jumlah: <strong><?= $guru ?></strong></p>
+          <a href="guru.php" class="btn btn-success">Kelola</a>
         </div>
       </div>
     </div>
 
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          Kelola Kriteria
-        </div>
+    <div class="col">
+      <div class="card h-100">
+        <div class="card-header">Data Kriteria</div>
         <div class="card-body">
-          <p class="card-text">Kelola data kriteria penilaian</p>
-          <p class="card-text">Jumlah Kriteria: <?= $kriteria ?></p>
-          <a href="kriteria.php" class="btn btn-primary">Kelola</a>
+          <p>Kelola kriteria penilaian.</p>
+          <p>Jumlah: <strong><?= $kriteria ?></strong></p>
+          <a href="kriteria.php" class="btn btn-success">Kelola</a>
         </div>
       </div>
     </div>
-
-    <?php if ($_SESSION['role'] !== 'supervisor'): ?>
-      <div class="col-md-4">
-        <div class="card">
-          <div class="card-header">
-            Input Nilai
-          </div>
-          <div class="card-body">
-            <p class="card-text">Input nilai penilaian</p>
-            <a href="nilai.php" class="btn btn-primary">Input</a>
-          </div>
-        </div>
-      </div>
     <?php endif; ?>
 
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          Lihat Hasil CPI
-        </div>
+    <?php if ($_SESSION['role'] === 'guru'): ?>
+    <div class="col">
+      <div class="card h-100">
+        <div class="card-header">Input Nilai</div>
         <div class="card-body">
-          <p class="card-text">Lihat hasil CPI</p>
-          <a href="hasil.php" class="btn btn-primary">Lihat</a>
+          <p>Input nilai penilaian berdasarkan kriteria.</p>
+          <p>Total Penilaian: <strong><?= $penilaian ?></strong></p>
+          <a href="nilai.php" class="btn btn-warning">Input</a>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="col">
+      <div class="card h-100">
+        <div class="card-header">Hasil CPI</div>
+        <div class="card-body">
+          <p>Lihat hasil perhitungan metode CPI.</p>
+          <a href="hasil.php" class="btn btn-info">Lihat Hasil</a>
         </div>
       </div>
     </div>
 
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          Cetak PDF
-        </div>
+    <div class="col">
+      <div class="card h-100">
+        <div class="card-header">Cetak PDF</div>
         <div class="card-body">
-          <p class="card-text">Cetak laporan CPI</p>
-          <a href="cetak_laporan.php" class="btn btn-primary" target="_blank">Cetak</a>
+          <p>Cetak laporan hasil penilaian guru.</p>
+          <a href="cetak_laporan.php" target="_blank" class="btn btn-primary">Cetak</a>
         </div>
       </div>
     </div>
 
+  </div>
+  <!-- 5 Guru dengan CPI Tertinggi -->
+  <div class="mt-3">
+    <div class="card">
+      <div class="card-header">5 Guru dengan CPI Tertinggi</div>
+      <div class="card-body">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Nama Guru</th>
+              <th>CPI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach (getTopCPI($conn, 5) as $g): ?>
+            <tr>
+              <td><?= $g['nama'] ?></td>
+              <td><?= number_format($g['cpi'], 2) ?></td>
+            </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
