@@ -29,21 +29,26 @@ ini
 Salin
 Edit
 CPI = ∑(nilai × bobot) dari setiap kriteria
+
 Contoh:
 
-Kriteria	Nilai	Bobot	Kalkulasi (Nilai × Bobot)
-Disiplin	85	0.25	21.25
-Kerja Tim	90	0.20	18.00
-...	...	...	...
-Total CPI			X.XX
+| Kriteria      | Nilai | Bobot | Kalkulasi (Nilai × Bobot) |
+| ------------- | ----- | ----- | ------------------------- |
+| Disiplin      | 85    | 0.25  | 21.25                     |
+| Kerja Tim     | 90    | 0.20  | 18.00                     |
+| ...           | ...   | ...   | ...                       |
+| **Total CPI** |       |       | **X.XX**                  |
+
 
 Jika CPI ≥ 80, maka karyawan dianggap Layak Mendapatkan Reward.
 
 🔐 Hak Akses
-Role	Hak Akses
-Admin	Kelola semua data (karyawan, kriteria, nilai, user)
-HRD	Kelola nilai dan lihat hasil
-Supervisor	Hanya bisa melihat hasil CPI (tanpa bisa mengubah data)
+| Role           | Hak Akses                                               |
+| -------------- | ------------------------------------------------------- |
+| **Admin**      | Kelola semua data (karyawan, kriteria, nilai, user)     |
+| **HRD**        | Kelola nilai dan lihat hasil                            |
+| **Supervisor** | Hanya bisa melihat hasil CPI (tanpa bisa mengubah data) |
+
 
 🛠️ Teknologi
 💻 PHP Native
@@ -56,10 +61,6 @@ Supervisor	Hanya bisa melihat hasil CPI (tanpa bisa mengubah data)
 
 🖨️ Dompdf (untuk cetak PDF)
 
-📂 Struktur Folder
-pgsql
-Salin
-Edit
 📁 spk-cpi/
 ├── config/
 │   └── db.php
@@ -74,6 +75,7 @@ Edit
 ├── login.php
 ├── logout.php
 └── index.php
+
 🚀 Cara Menjalankan
 Clone/copy project ke folder htdocs atau www.
 
@@ -81,9 +83,10 @@ Buat database MySQL → import spk_cpi.sql.
 
 Jalankan di browser via http://localhost/spk-cpi/.
 
-Login menggunakan:
+| Role           | Username     | Password        |
+| -------------- | ------------ | --------------- |
+| **Admin**      | `admin`      | `admin123`      |
+| **HRD**        | `hrd`        | `hrd123`        |
+| **Supervisor** | `supervisor` | `supervisor123` |
 
-Username: admin
-
-Password: admin
 
