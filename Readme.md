@@ -1,34 +1,9 @@
-🎯 SPK CPI - Sistem Penunjang Keputusan Reward Karyawan
-Sistem ini digunakan untuk membantu manajemen dalam menentukan karyawan yang layak mendapat reward berdasarkan kinerja menggunakan metode Composite Performance Index (CPI).
+# SISTEM PENDUKUNG KEPUTUSAN PENILAIAN KINERJA GURU UNTUK OPTIMALISASI MANAJEMEN SEKOLAH PADA SMP NEGERI 5 KUBUNG MENGGUNAKAN METODE COMPOSITE PERFORMANCE INDEX (CPI)
 
-📌 Fitur Utama
-✅ Login Multi-Role: Admin, HRD, Supervisor
-
-✅ CRUD Karyawan
-
-✅ CRUD Kriteria Penilaian
-
-✅ Input Penilaian Kinerja
-
-✅ Perhitungan CPI Otomatis
-
-✅ Visualisasi Langkah CPI (Manual/Matematika)
-
-✅ Status Reward Otomatis (≥80 Layak Reward)
-
-✅ Grafik CPI Per Karyawan (Chart.js)
-
-✅ Cetak PDF Laporan Reward
-
-✅ Manajemen User (pengguna.php)
-
-📊 Metode: Composite Performance Index (CPI)
+📊 **Metode:** Composite Performance Index (CPI)  
 CPI dihitung dengan rumus:
 
-ini
-Salin
-Edit
-CPI = ∑(nilai × bobot) dari setiap kriteria
+> **CPI = ∑(nilai × bobot) dari setiap kriteria**
 
 Contoh:
 
@@ -39,34 +14,30 @@ Contoh:
 | ...           | ...   | ...   | ...                       |
 | **Total CPI** |       |       | **X.XX**                  |
 
+Jika CPI ≥ 80, maka guru dianggap Layak Mendapatkan Reward.
 
-Jika CPI ≥ 80, maka karyawan dianggap Layak Mendapatkan Reward.
-
-🔐 Hak Akses
+🔐 **Hak Akses**
 | Role           | Hak Akses                                               |
 | -------------- | ------------------------------------------------------- |
-| **Admin**      | Kelola semua data (karyawan, kriteria, nilai, user)     |
-| **HRD**        | Kelola nilai dan lihat hasil                            |
-| **Supervisor** | Hanya bisa melihat hasil CPI (tanpa bisa mengubah data) |
+| **Admin**      | Kelola semua data (guru, kriteria, nilai, user)         |
+| **kepala_sekolah** | Hanya bisa melihat hasil CPI (tanpa bisa mengubah data) |
+| **guru**       | Kelola nilai dan lihat hasil                            |
 
+🛠️ **Teknologi**
+- 💻 PHP Native
+- 🗃️ MySQL
+- 🎨 Bootstrap 5
+- 📈 Chart.js
+- 🖨️ Dompdf (untuk cetak PDF)
 
-🛠️ Teknologi
-💻 PHP Native
-
-🗃️ MySQL
-
-🎨 Bootstrap 5
-
-📈 Chart.js
-
-🖨️ Dompdf (untuk cetak PDF)
-
-📁 spk-cpi/
+📁 **Struktur Folder**
+```
+spk-cpi-guru/
 ├── config/
 │   └── db.php
 ├── pages/
 │   ├── dashboard.php
-│   ├── karyawan.php
+│   ├── guru.php
 │   ├── kriteria.php
 │   ├── nilai.php
 │   ├── hasil.php
@@ -75,16 +46,15 @@ Jika CPI ≥ 80, maka karyawan dianggap Layak Mendapatkan Reward.
 ├── login.php
 ├── logout.php
 └── index.php
-
+```
 
 Buat database MySQL → import spk_cpi.sql.
 
-Jalankan di browser via http://localhost/spk-cpi/.
+Jalankan di browser via http://localhost/spk-cpi-guru/.
 
-| Role           | Username     | Password        |
-| -------------- | ------------ | --------------- |
-| **Admin**      | `admin`      | `admin123`      |
-| **HRD**        | `hrd`        | `hrd123`        |
-| **Supervisor** | `supervisor` | `supervisor123` |
-
+| Role           | Username           | Password           |
+| -------------- | ------------------ | ------------------ |
+| **Admin**      | `admin`            | `admin123`         |
+| **kepala_sekolah** | `kepala_sekolah` | `kepala_sekolah123`|
+| **guru**       | `guru`             | `guru123`          |
 
