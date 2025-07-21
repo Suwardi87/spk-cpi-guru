@@ -7,7 +7,8 @@ if (!isset($_SESSION['username'])) {
 
 include '../config/db.php';
 
-function getKriteria($conn) {
+function getKriteria($conn)
+{
     $result = mysqli_query($conn, "SELECT * FROM kriteria");
     $kriteria = [];
     while ($row = mysqli_fetch_assoc($result)) {
@@ -16,7 +17,8 @@ function getKriteria($conn) {
     return $kriteria;
 }
 
-function getGuru($conn) {
+function getGuru($conn)
+{
     $result = mysqli_query($conn, "SELECT * FROM guru");
     $guru = [];
     while ($row = mysqli_fetch_assoc($result)) {
@@ -25,113 +27,226 @@ function getGuru($conn) {
     return $guru;
 }
 
-function getPenilaian($conn) {
+function getPenilaian($conn)
+{
     $data = [];
-    $result = mysqli_query($conn, "SELECT * FROM penilaian");
+    $result = mysqli_query($conn, "SELECT * FROM penilaian ORDER BY id_guru ASC");
     while ($row = mysqli_fetch_assoc($result)) {
         $data[$row['id_guru']][$row['id_kriteria']] = $row['nilai'];
     }
     return $data;
 }
 
-function hitungCPI($penilaian, $kriteria) {
+
+function konversiSkor($id_kriteria, $nilai)
+{
+    if ($id_kriteria == 1) {
+        if ($nilai >= 100) return 4;
+        elseif ($nilai >= 95) return 3;
+        elseif ($nilai >= 90) return 2;
+        else return 1;
+    }
+
+    if ($id_kriteria == 2 || $id_kriteria == 3) {
+        if ($nilai >= 90) return 4;
+        elseif ($nilai >= 80) return 3;
+        elseif ($nilai >= 70) return 2;
+        else return 1;
+    }
+
+    if ($id_kriteria == 4) {
+        if ($nilai >= 95) return 5;
+        elseif ($nilai >= 90) return 4;
+        elseif ($nilai >= 80) return 3;
+        elseif ($nilai >= 70) return 2;
+        else return 1;
+    }
+
+    if ($id_kriteria == 5) {
+        if ($nilai >= 95) return 5;
+        elseif ($nilai >= 90) return 4;
+        elseif ($nilai >= 80) return 3;
+        elseif ($nilai >= 70) return 2;
+        else return 1;
+    }
+
+    return 0;
+}
+
+
+
+function getMaxMin($penilaian, $kriteria)
+{
+    $maxMin = [];
+    foreach ($kriteria as $k) {
+        $id = $k['id'];
+        $nilaiKriteria = [];
+        foreach ($penilaian as $nilaiPerKriteria) {
+            if (isset($nilaiPerKriteria[$id])) {
+                $nilaiKriteria[] = konversiSkor($id, $nilaiPerKriteria[$id]);
+            }
+        }
+        $maxMin[$id]['max'] = !empty($nilaiKriteria) ? max($nilaiKriteria) : 0;
+        $maxMin[$id]['min'] = !empty($nilaiKriteria) ? min($nilaiKriteria) : 0;
+    }
+    return $maxMin;
+}
+
+function hitungCPI($penilaian, $kriteria)
+{
+    $maxMin = getMaxMin($penilaian, $kriteria);
     $hasil = [];
+
     foreach ($penilaian as $id_guru => $nilaiPerKriteria) {
         $total = 0;
         foreach ($kriteria as $k) {
-            $nilai = isset($nilaiPerKriteria[$k['id']]) ? $nilaiPerKriteria[$k['id']] : 0;
-            $kalkulasi = $nilai * $k['bobot'];
-            $total += $kalkulasi;
-            $hasil[$id_guru]['kalkulasi'][$k['id']] = [
-                'nilai' => $nilai,
-                'bobot' => $k['bobot'],
-                'hasil' => $kalkulasi
+            $id_kriteria = $k['id'];
+            $nilai = isset($nilaiPerKriteria[$id_kriteria]) ? $nilaiPerKriteria[$id_kriteria] : 0;
+            $bobot = $k['bobot'];
+            $tren = strtolower($k['tren']);
+
+            // Step 1: Konversi ke skor
+            $skor = konversiSkor($id_kriteria, $nilai);
+
+            // Step 2: Normalisasi skor
+            $max = $maxMin[$id_kriteria]['max'];
+            $min = $maxMin[$id_kriteria]['min'];
+
+            $normal = 0;
+            if ($tren === 'positif' && $min != 0) {
+                $normal = ($skor / $min) * 100;
+            } elseif ($tren === 'negatif' && $skor != 0) {
+                $normal = ($min / $skor) * 100;
+            }
+
+            // Step 3: Hasil akhir per kriteria
+            $hasilNormal = $normal * $bobot ;
+
+            $hasil[$id_guru]['kalkulasi'][$id_kriteria] = [
+                'nilai_mentah' => $nilai,
+                'skor' => $skor,
+                'normalisasi' => round($normal, 4),
+                'bobot' => $bobot,
+                'hasil_normal' => $hasilNormal,
+                'hasil' => round($hasilNormal, 4)
             ];
+
+            $total += $hasilNormal;
         }
-        $hasil[$id_guru]['total'] = $total;
+        $hasil[$id_guru]['total'] = round($total, 4);
     }
+
     return $hasil;
 }
+
 
 $kriteria = getKriteria($conn);
 $guru = getGuru($conn);
 $penilaian = getPenilaian($conn);
 $cpiHasil = hitungCPI($penilaian, $kriteria);
+$maxMin = getMaxMin($penilaian, $kriteria);
+$konversiSkor = function ($id_kriteria, $nilai) {
+    return konversiSkor($id_kriteria, $nilai);
+};
 
-usort($guru, function($a, $b) use ($cpiHasil) {
-    return $cpiHasil[$b['id']]['total'] <=> $cpiHasil[$a['id']]['total'];
-});
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Hasil CPI - Langkah Detail</title>
+    <title>Hasil CPI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .card, .table { background-color: white; }
-        .card-header, .table-s { background-color: #00695c; color: white; font-weight: bold; }
-        .btn-primary { background-color: #00695c; border-color: #00695c; border-radius: 8px; }
-        .btn-secondary { background-color: #868e96; border-color: #868e96; border-radius: 8px; }
-        .btn-warning { background-color: #ffc107; border-color: #ffc107; border-radius: 8px; }
-        .btn-danger { background-color: #dc3545; border-color: #dc3545; border-radius: 8px; }
-        .form-control { border-radius: 8px; }
-        .table-hover tbody tr:hover { background-color: #cfd2d6; }
-        .navbar { background-color: #00695c !important; }
-        .navbar-brand, .navbar-text { color: #fff !important; }
-        h3 { margin-top: 32px; }
-        thead.table-dark th, thead.table-s th {
-            background-color: #00695c !important;
-            color: #fff !important;
-        }
-    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg px-3">
-  <div class="container-fluid">
-    <a href="dashboard.php" class="navbar-brand">← Kembali ke Dashboard</a>
-    <span class="navbar-text ms-auto">
-      Login sebagai: <?= htmlspecialchars($_SESSION['username']) ?> (<?= $_SESSION['role'] ?>)
-    </span>
-  </div>
+<nav class="navbar navbar-expand-lg bg-success px-3 text-white">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="dashboard.php">← Kembali ke Dashboard</a>
+        <span class="navbar-text ms-auto">
+            Login sebagai: <?= htmlspecialchars($_SESSION['username']) ?> (<?= $_SESSION['role'] ?>)
+        </span>
+    </div>
 </nav>
 
 <div class="container mt-4">
 
-    <div class="card">
-        <div class="card-header">Langkah 1: Daftar Kriteria dan Bobot</div>
-        <div class="card-body p-0">
-            <table class="table table-bordered mb-0">
-                <thead class="table-dark">
-                    <tr><th>Kriteria</th><th>Bobot</th></tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($kriteria as $k): ?>
-                        <tr><td><?= $k['nama_kriteria'] ?></td><td><?= $k['bobot'] ?></td></tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+    <!-- Langkah 1 -->
+    <div class="card mb-3">
+        <div class="card-header bg-success text-white">Langkah 1: Daftar Kriteria dan Bobot</div>
+        <table class="table mb-0">
+            <thead><tr><th>Kriteria</th><th>Bobot</th><th>Tren</th></tr></thead>
+            <tbody>
+                <?php foreach ($kriteria as $k): ?>
+                    <tr>
+                        <td><?= $k['nama_kriteria'] ?></td>
+                        <td><?= $k['bobot'] ?></td>
+                        <td><?= ucfirst($k['tren']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 
-    <div class="card">
-        <div class="card-header">Langkah 2: Matriks Penilaian Guru</div>
-        <div class="card-body p-0">
-            <table class="table table-bordered mb-0">
-                <thead class="table-dark">
+    <!-- Langkah 2 -->
+    <div class="card mb-3">
+    <div class="card-header bg-success text-white">Langkah 2: Matriks Penilaian Guru</div>
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <?php foreach ($kriteria as $k): ?>
+                    <th><?= $k['nama_kriteria'] ?></th>
+                <?php endforeach; ?>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($guru as $g): ?>
+                <tr>
+                    <td><?= $g['nama'] ?></td>
+                    <?php foreach ($kriteria as $kr): ?>
+                        <td><?= $penilaian[$g['id']][$kr['id']] ?? '-' ?></td>
+                    <?php endforeach; ?>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
+    
+
+    <!-- Langkah 4 -->
+    <div class="card mt-4">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Langkah 3: Kalkulasi CPI</h4>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-light text-center">
                     <tr>
-                        <th>Nama</th>
-                        <?php foreach ($kriteria as $k): ?><th><?= $k['nama_kriteria'] ?></th><?php endforeach; ?>
+                        <th rowspan="2">Nama Guru</th>
+                        <?php foreach ($kriteria as $k): ?>
+                            <th><?= $k['nama_kriteria'] ?></th>
+                        <?php endforeach; ?>
+                    </tr>
+                    <tr>
+                        <?php foreach ($kriteria as $k): ?>
+                            <th>× Bobot (<?= $k['bobot'] ?>)</th>
+                        <?php endforeach; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($guru as $g): ?>
+                    <?php foreach ($guru as $g): 
+                        $id = $g['id'];
+                        $data = $cpiHasil[$id];
+                    ?>
                         <tr>
                             <td><?= $g['nama'] ?></td>
-                            <?php foreach ($kriteria as $kr): ?>
-                                <td><?= $penilaian[$g['id']][$kr['id']] ?? '-' ?></td>
+                            <?php foreach ($kriteria as $k): 
+                                $d = $data['kalkulasi'][$k['id']] ?? ['nilai'=>0,'normalisasi'=>0,'skor'=>0,'bobot'=>0,'hasil'=>0, 'hasil_normal'=>0];
+
+                            ?>
+                                <td class="text-center">
+                                     <?= $d['skor'] ?>                                 
                             <?php endforeach; ?>
                         </tr>
                     <?php endforeach; ?>
@@ -140,28 +255,57 @@ usort($guru, function($a, $b) use ($cpiHasil) {
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">Langkah 3: Kalkulasi CPI (Nilai × Bobot)</div>
-        <div class="card-body p-0">
-            <table class="table table-bordered mb-0">
-                <thead class="table-dark">
+ <!-- Langkah 3 -->
+    <div class="card mb-3">
+        <div class="card-header bg-success text-white">Langkah 4: Nilai Max & Min Tiap Kriteria</div>
+        <table class="table mb-0">
+            <thead><tr><th>Kriteria</th><th>Max</th><th>Min</th></tr></thead>
+            <tbody>
+                <?php foreach ($kriteria as $k): ?>
                     <tr>
-                        <th>Nama</th>
-                        <?php foreach ($kriteria as $k): ?><th><?= $k['nama_kriteria'] ?> (Nilai × Bobot)</th><?php endforeach; ?>
-                        <th>Total CPI</th>
+                        <td><?= $k['nama_kriteria'] ?></td>
+                        <td><?= $maxMin[$k['id']]['max'] ?></td>
+                        <td><?= $maxMin[$k['id']]['min'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Langkah 4 -->
+    <div class="card mt-4">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Langkah 5: Kalkulasi CPI</h4>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th rowspan="2">Nama Guru</th>
+                        <?php foreach ($kriteria as $k): ?>
+                            <th><?= $k['nama_kriteria'] ?></th>
+                        <?php endforeach; ?>
+                    </tr>
+                    <tr>
+                        <?php foreach ($kriteria as $k): ?>
+                            <th>× Bobot (<?= $k['bobot'] ?>)</th>
+                        <?php endforeach; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($guru as $g): ?>
+                    <?php foreach ($guru as $g): 
+                        $id = $g['id'];
+                        $data = $cpiHasil[$id];
+                    ?>
                         <tr>
                             <td><?= $g['nama'] ?></td>
-                            <?php foreach ($kriteria as $kr): ?>
-                                <?php 
-                                $calc = $cpiHasil[$g['id']]['kalkulasi'][$kr['id']] ?? ['nilai'=>0,'bobot'=>0,'hasil'=>0];
-                                ?>
-                                <td><?= $calc['nilai'] ?> × <?= $calc['bobot'] ?> = <strong><?= number_format($calc['hasil'], 2) ?></strong></td>
+                            <?php foreach ($kriteria as $k): 
+                                $d = $data['kalkulasi'][$k['id']] ?? ['nilai'=>0,'normalisasi'=>0,'skor'=>0,'bobot'=>0,'hasil'=>0, 'hasil_normal'=>0];
+
+                            ?>
+                                <td class="text-center">
+                                     <?=$d['normalisasi']?> X <?= number_format($d['bobot'], 2) ?> = <?= number_format($d['hasil_normal'], 2) ?>
                             <?php endforeach; ?>
-                            <td><strong><?= number_format($cpiHasil[$g['id']]['total'], 2) ?></strong></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -169,48 +313,26 @@ usort($guru, function($a, $b) use ($cpiHasil) {
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">Langkah 4: Status Reward</div>
-        <div class="card-body p-0">
-            <table class="table table-bordered mb-0">
-                <thead class="table-dark">
-                    <tr><th>Nama</th><th>CPI</th><th>Status</th></tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($guru as $g): ?>
-                        <?php $cpi = $cpiHasil[$g['id']]['total']; ?>
-                        <tr>
-                            <td><?= $g['nama'] ?></td>
-                            <td><?= number_format($cpi, 2) ?></td>
-                            <td>
-                                <?= $cpi >= 80 ? '<span class="badge bg-success">Layak Reward</span>' : '<span class="badge bg-danger">Belum Layak</span>' ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
+   
 
-    <div class="card">
-        <div class="card-header">Langkah 5: Urutan Berdasarkan CPI</div>
-        <div class="card-body p-0">
-            <table class="table table-bordered mb-0">
-                <thead class="table-dark">
-                    <tr><th>Urutan</th><th>Nama</th><th>CPI</th></tr>
-                </thead>
-                <tbody>
-                    <?php $rank = 1; ?>
-                    <?php foreach ($guru as $g): ?>
-                        <tr>
-                            <td><?= $rank++ ?></td>
-                            <td><?= $g['nama'] ?></td>
-                            <td><?= number_format($cpiHasil[$g['id']]['total'], 2) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+
+
+    <!-- Langkah 6 -->
+    <div class="card mb-5">
+        <div class="card-header bg-success text-white">Langkah 6: Urutan Berdasarkan CPI</div>
+        <table class="table mb-0">
+            <thead><tr><th>Urutan</th><th>Nama</th><th>CPI</th></tr></thead>
+            <tbody>
+                <?php $rank = 1; ?>
+                <?php foreach ($guru as $g): ?>
+                    <tr>
+                        <td><?= $rank++ ?></td>
+                        <td><?= $g['nama'] ?></td>
+                        <td><?= number_format($cpiHasil[$g['id']]['total'],2) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 
 </div>
