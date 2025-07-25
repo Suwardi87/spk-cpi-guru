@@ -30,7 +30,7 @@ function getTopCPI($conn, $limit = 5) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #f8f9fa;
+      background-image: #f8f9fa;
     }
     .card {
       margin-bottom: 20px;
@@ -66,13 +66,19 @@ function getTopCPI($conn, $limit = 5) {
       border-radius: 10px;
       border: 1px solid #ccc;
     }
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
   </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg px-3" style="background-color:#00695c;color:white;">
   <div class="container-fluid">
-    <a class="navbar-brand text-white" href="dashboard.php">Sistem Penilaian Guru</a>
+    <a class="navbar-brand text-white" href="dashboard.php"> <img src="../assets/logo.jpg" class="logo" alt="logo">Sistem Penilaian Guru</a>
     <ul class="navbar-nav me-auto">
       <li class="nav-item"><a class="nav-link text-white" href="dashboard.php">Dashboard</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="guru.php" <?= $_SESSION['role'] !== 'admin' ? 'style="pointer-events: none; opacity: 0.5;"' : '' ?>>Kelola Guru</a></li>
@@ -145,41 +151,8 @@ function getTopCPI($conn, $limit = 5) {
       </div>
     </div>
 
-    <div class="col">
-      <div class="card h-100">
-        <div class="card-header">Cetak PDF</div>
-        <div class="card-body">
-          <p>Cetak laporan hasil penilaian guru.</p>
-          <a href="cetak_laporan.php" target="_blank" class="btn btn-primary">Cetak</a>
-        </div>
-      </div>
-    </div>
-
   </div>
-  <!-- 5 Guru dengan CPI Tertinggi -->
-  <div class="mt-3">
-    <div class="card">
-      <div class="card-header">5 Guru dengan CPI Tertinggi</div>
-      <div class="card-body">
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>Nama Guru</th>
-              <th>CPI</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach (getTopCPI($conn, 5) as $g): ?>
-            <tr>
-              <td><?= $g['nama'] ?></td>
-              <td><?= number_format($g['cpi'], 2) ?></td>
-            </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  
 </div>
 
 </body>

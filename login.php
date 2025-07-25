@@ -93,7 +93,7 @@ if (isset($_POST['login'])) {
 
 <div class="login-box">
   <div class="login-logo">
-    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png" alt="Logo Sekolah">
+    <img src="assets/logo.jpg" alt="Logo Sekolah">
     <span class="login-title">Sistem Penilaian Guru</span>
   </div>
   <div class="login-subtitle">Login ke Aplikasi SPK CPI</div>
