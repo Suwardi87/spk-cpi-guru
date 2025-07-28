@@ -81,11 +81,11 @@ function getTopCPI($conn, $limit = 5) {
     <a class="navbar-brand text-white" href="dashboard.php"> <img src="../assets/logo.jpg" class="logo" alt="logo">Sistem Penilaian Guru</a>
     <ul class="navbar-nav me-auto">
       <li class="nav-item"><a class="nav-link text-white" href="dashboard.php">Dashboard</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="guru.php" <?= $_SESSION['role'] !== 'admin' ? 'style="pointer-events: none; opacity: 0.5;"' : '' ?>>Kelola Guru</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="kriteria.php" <?= $_SESSION['role'] !== 'admin' ? 'style="pointer-events: none; opacity: 0.5;"' : '' ?>>Kelola Kriteria</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="nilai.php" <?= $_SESSION['role'] !== 'guru' ? 'style="pointer-events: none; opacity: 0.5;"' : '' ?>>Input Nilai</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="guru.php" <?= $_SESSION['role'] !== 'admin' ? 'style="display: none; opacity: 0.5;"' : '' ?>>Kelola Guru</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="kriteria.php" <?= $_SESSION['role'] !== 'admin' ? 'style="display: none; opacity: 0.5;"' : '' ?>>Kelola Kriteria</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="nilai.php" <?= $_SESSION['role'] !== 'guru' ? 'style="display: none; opacity: 0.5;"' : '' ?>>Kelola Nilai</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="hasil.php">Hasil CPI</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="cetak_laporan.php">Cetak PDF</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="cetak_laporan.php">Cetak Hasil</a></li>
     </ul>
     <span class="navbar-text text-white">
       Login sebagai: <?= htmlspecialchars($_SESSION['username']) ?> (<?= $_SESSION['role'] ?>)
