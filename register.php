@@ -2,46 +2,30 @@
 session_start();
 include 'config/db.php';
 
-function normalizeUsername($username) {
-    // hapus titik dan koma
-    $username = preg_replace('/[.,]/', '', $username);
-    // ambil kata pertama
-    $username = explode(' ', $username)[0];
-    // kecilkan semua huruf
-    return strtolower($username);
-}
-
-
-// Proses login
-if (isset($_POST['login'])) {
-    $inputUsername = strtolower(trim($_POST['username']));
+// Proses register
+if (isset($_POST['register'])) {
+    $nama = mysqli_real_escape_string($conn, $_POST['nama']);
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = md5($_POST['password']);
+    $role = mysqli_real_escape_string($conn, $_POST['role']);
 
-    // ambil user dengan password cocok
-    $query = mysqli_query($conn, "SELECT * FROM pengguna WHERE password='$password'");
-    while ($user = mysqli_fetch_assoc($query)) {
-        // normalisasi username di database
-        $normalized = normalizeUsername($user['username']);
-        if ($inputUsername === $normalized) {
-            $_SESSION['username'] = $user['username']; // nama lengkap
-            $_SESSION['role'] = $user['role'];
-            header("Location: index.php");
-            exit;
-        }
+    $query = mysqli_query($conn, "INSERT INTO pengguna (nama, username, password, role) VALUES ('$nama', '$username', '$password', '$role')");
+
+    if ($query) {
+        $_SESSION['success'] = "Akun berhasil dibuat!";
+        header("Location: login.php");
+        exit;
+    } else {
+        $error = "Gagal membuat akun!";
     }
-
-    $error = "Username atau password salah!";
 }
-
-
-
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Login - SPK CPI</title>
+  <title>Register - SPK CPI</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { 
@@ -49,7 +33,7 @@ if (isset($_POST['login'])) {
       min-height: 100vh;
       font-family: 'Segoe UI', Arial, sans-serif;
     }
-    .login-box {
+    .register-box {
       max-width: 400px;
       margin: 80px auto;
       padding: 32px 28px 24px 28px;
@@ -58,19 +42,19 @@ if (isset($_POST['login'])) {
       box-shadow: 0 6px 32px rgba(0,105,92,0.10), 0 1.5px 6px rgba(0,105,92,0.08);
       border-top: 6px solid #00695c;
     }
-    .login-logo {
+    .register-logo {
       display: flex;
       justify-content: center;
       align-items: center;
       margin-bottom: 18px;
     }
-    .login-logo img {
+    .register-logo img {
       width: 56px;
       height: 56px;
       object-fit: contain;
       margin-right: 10px;
     }
-    .login-title {
+    .register-title {
       color: #00695c;
       font-weight: bold;
       font-size: 1.35rem;
@@ -78,7 +62,7 @@ if (isset($_POST['login'])) {
       margin-bottom: 8px;
       letter-spacing: 1px;
     }
-    .login-subtitle {
+    .register-subtitle {
       color: #333;
       font-size: 1rem;
       text-align: center;
@@ -107,12 +91,12 @@ if (isset($_POST['login'])) {
 </head>
 <body>
 
-<div class="login-box">
-  <div class="login-logo">
+<div class="register-box">
+  <div class="register-logo">
     <img src="assets/logo.jpg" alt="Logo Sekolah">
-    <span class="login-title">Sistem Penilaian Guru</span>
+    <span class="register-title">Sistem Penilaian Guru</span>
   </div>
-  <div class="login-subtitle">Login ke Aplikasi SPK CPI</div>
+  <div class="register-subtitle">Register ke Aplikasi SPK CPI</div>
 
   <?php if (isset($error)): ?>
     <div class="alert alert-danger"><?= $error ?></div>
@@ -120,17 +104,22 @@ if (isset($_POST['login'])) {
 
   <form method="post">
     <div class="mb-3">
+      <label class="form-label">Nama</label>
+      <input type="text" name="nama" class="form-control" required autofocus autocomplete="name">
+    </div>
+    <div class="mb-3">
       <label class="form-label">Username</label>
       <input type="text" name="username" class="form-control" required autofocus autocomplete="username">
     </div>
     <div class="mb-3">
       <label class="form-label">Password</label>
-      <input type="password" name="password" class="form-control" required autocomplete="current-password">
+      <input type="password" name="password" class="form-control" required autocomplete="new-password">
     </div>
-    <button class="btn btn-primary w-100" name="login">Login</button>
-    <p class="text-center mt-2">Belum punya akun? <a href="register.php">Register</a></p>
+    <input type="hidden" name="role" value="guru">
+    <button class="btn btn-primary w-100" name="register">Register</button>
   </form>
 </div>
 
 </body>
 </html>
+

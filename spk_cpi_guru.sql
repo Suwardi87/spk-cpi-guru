@@ -99,9 +99,29 @@ CREATE TABLE `pengguna` (
 --
 
 INSERT INTO `pengguna` (`id`, `username`, `password`, `role`) VALUES
-(1, 'admin', '0192023a7bbd73250516f069df18b500', 'admin'),
-(2, 'kepala_sekolah', 'eaed95826e34a1e91b051f3b56f5ff3d', 'kepala_sekolah'),
-(3, 'guru', '9310f83135f238b04af729fec041cca8', 'guru');
+(1, 'admin', '0192023a7bbd73250516f069df18b500', 'admin'), -- login: username=admin, password=admin123
+(2, 'kepala_sekolah', 'eaed95826e34a1e91b051f3b56f5ff3d', 'kepala_sekolah'), -- login: username=kepala_sekolah, password=kepalasekolah123
+(3, 'Gusmelda Fitri, S.Ag', '21c0f1f1beb75d4a6ca2598fdefd903f', 'guru'), -- login: username=gusmelda, password=gusmelda123
+(4, 'Febria Noza, S.Pd I', '04cf6525e9dbb25e450b7530a73e19bb', 'guru'), -- login: username=febria, password=febria123
+(5, 'Susi Elmi, S.Pd I', 'f336fd52b941928024568677f8c1f319', 'guru'), -- login: username=susi, password=susi123
+(6, 'Riska Fhadillah, S.Pd', '737bce5b2ec55aa5f1463aa3f3f9b07a', 'guru'), -- login: username=riska, password=riska123
+(7, 'Ernawilis Emardi, S.Pd', 'f1b01eec0f2b27b6b76aa3cf245d1eb3', 'guru'), -- login: username=ernawilis, password=ernawilis123
+(8, 'Evi Rahayu, S.Pd', 'ab09f47a38a55b6e458aa841ba0da9b8', 'guru'), -- login: username=evi, password=evi123
+(9, 'Reni Ekaputri, S.Pd', 'dc8650931c1b158f6cd1c3f2d25f9e12', 'guru'), -- login: username=reni, password=reni123
+(10, 'Rina Febriana, S.Pd', '070a7b0619f7a83da4ecce0e6b31ce0f', 'guru'), -- login: username=rina, password=rina123
+(11, 'Reni Puspita Ningsih, S.Pd', '49d3f109598f1db35b8b49f30756374e', 'guru'), -- login: username=reni, password=renipuspita123
+(12, 'Nurfatmawati, S.Pd', '416a6c95f374771d354fd8bb5f07c144', 'guru'), -- login: username=nurfatmawati, password=nurfati123
+(13, 'Ridani, S.Pd', 'f813501a13749e51f6a174a28978d259', 'guru'), -- login: username=ridani, password=ridani123
+(14, 'Delvita Hendriaty, S.Pd', '31a174b4a3b8cfae8a62249b0812d7db', 'guru'), -- login: username=delvita, password=delvita123
+(15, 'Maiwasti, S.Pd', 'f1e80872a19699a9e93d65a5c18e3c2c', 'guru'), -- login: username=maiwasti, password=maiwasti123
+(16, 'Santi Gustina, S.E', 'ff4693a93c148dda6a0a599a72a32643', 'guru'), -- login: username=santi, password=santi123
+(17, 'Eniza Sefiawati, A.Md', 'bc2cd9a9dcff3a7bde3bafc792d4e7fc', 'guru'), -- login: username=eniza, password=eniza123
+(18, 'Drs. Febrizal Zuardi', '1d4dc7d3d1550ddf5d7d1f2f7c1fc6b1', 'guru'), -- login: username=drs, password=febrizal123
+(19, 'Rismayanti, S.Fil.I', '53e6f2d329d39f26b2b7a6d40706cda7', 'guru'), -- login: username=rismayanti, password=rismayanti123
+(20, 'Syerli Fitriani, S.Pd', '66a3a68cf0b3e2b50e1f5d62471f1f22', 'guru'); -- login: username=syerli, password=syerli123
+
+
+
 
 -- --------------------------------------------------------
 
