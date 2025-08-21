@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 28 Jul 2025 pada 04.42
+-- Waktu pembuatan: 21 Agu 2025 pada 17.21
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.2.12
 
@@ -89,8 +89,8 @@ INSERT INTO `kriteria` (`id`, `nama_kriteria`, `bobot`, `tren`) VALUES
 
 CREATE TABLE `pengguna` (
   `id` int(11) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL,
+  `username` varchar(100) NOT NULL,
+  `password` char(32) NOT NULL,
   `role` enum('admin','kepala_sekolah','guru') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -121,7 +121,19 @@ INSERT INTO `pengguna` (`id`, `username`, `password`, `role`) VALUES
 (20, 'Syerli Fitriani, S.Pd', '66a3a68cf0b3e2b50e1f5d62471f1f22', 'guru'); -- login: username=syerli, password=syerli123
 
 
+-- --------------------------------------------------------
 
+--
+-- Stand-in struktur untuk tampilan `pengguna_login`
+-- (Lihat di bawah untuk tampilan aktual)
+--
+CREATE TABLE `pengguna_login` (
+`id` int(11)
+,`username` varchar(100)
+,`username_login` varchar(100)
+,`password` char(32)
+,`role` enum('admin','kepala_sekolah','guru')
+);
 
 -- --------------------------------------------------------
 
@@ -232,6 +244,15 @@ INSERT INTO `penilaian` (`id`, `id_guru`, `id_kriteria`, `nilai`) VALUES
 (89, 18, 4, 90),
 (90, 18, 5, 95);
 
+-- --------------------------------------------------------
+
+--
+-- Struktur untuk view `pengguna_login`
+--
+DROP TABLE IF EXISTS `pengguna_login`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `pengguna_login`  AS SELECT `pengguna`.`id` AS `id`, `pengguna`.`username` AS `username`, lcase(substring_index(replace(replace(`pengguna`.`username`,'.',''),',',''),' ',1)) AS `username_login`, `pengguna`.`password` AS `password`, `pengguna`.`role` AS `role` FROM `pengguna` ;
+
 --
 -- Indexes for dumped tables
 --
@@ -270,19 +291,13 @@ ALTER TABLE `penilaian`
 -- AUTO_INCREMENT untuk tabel `guru`
 --
 ALTER TABLE `guru`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT untuk tabel `kriteria`
 --
 ALTER TABLE `kriteria`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT untuk tabel `pengguna`
---
-ALTER TABLE `pengguna`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT untuk tabel `penilaian`
